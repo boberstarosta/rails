@@ -76,3 +76,7 @@ class VectorTest(unittest.TestCase):
         result = Vector.from_angle_x(90, length=5)
         self.assertAlmostEqual(result.x, 0)
         self.assertAlmostEqual(result.y, 5)
+
+    def test_copy(self):
+        v = Vector(2.5, -1)
+        self.assertEqual(v, Vector(v))
