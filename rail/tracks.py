@@ -1,9 +1,10 @@
+from rail.geometry import Vector
 from rail.graph import Graph
 
 
 class Node:
     def __init__(self, position):
-        self._position = position
+        self._position = Vector(position)
 
     @property
     def position(self):
