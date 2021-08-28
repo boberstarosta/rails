@@ -1,6 +1,8 @@
 import pyglet
 from pyglet import gl
 from rail import config
+from rail.tracks import TrackManager
+from rail.geometry import Vec
 
 
 class App:
@@ -10,6 +12,9 @@ class App:
         self.window.push_handlers(self)
         pyglet.clock.schedule_interval(self.on_update, 1.0 / config.FPS)
         self.setup_opengl()
+
+        self.tracks = TrackManager()
+        self.tracks.add_track(Vec(300, 300), Vec(600, 400))
 
     def setup_opengl(self):
         gl.glEnable(gl.GL_BLEND)
