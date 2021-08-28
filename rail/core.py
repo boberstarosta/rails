@@ -2,7 +2,6 @@ import pyglet
 from pyglet import gl
 from rail import config
 from rail.tracks import TrackManager
-from rail.geometry import Vec
 
 
 class App:
@@ -14,7 +13,7 @@ class App:
         self.setup_opengl()
 
         self.tracks = TrackManager()
-        self.tracks.add_track(Vec(300, 300), Vec(600, 400))
+        self.tracks.add_track((300, 300), (600, 400))
 
     def setup_opengl(self):
         gl.glEnable(gl.GL_BLEND)
