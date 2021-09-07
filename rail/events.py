@@ -8,6 +8,4 @@ class Event(list):
 
 track_node_created = Event()
 track_node_moved = Event()
-track_node_deleted = Event()
-track_node_connected = Event()
-track_node_disconnected = Event()
+track_nodes_connected = Event()
