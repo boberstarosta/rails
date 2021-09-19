@@ -4,12 +4,6 @@ from rail.graph import Graph
 
 class GraphTest(unittest.TestCase):
 
-    def test_directed(self):
-        g = Graph()
-        self.assertTrue(g.directed)
-        g = Graph(directed=False)
-        self.assertFalse(g.directed)
-    
     def test_node_count(self):
         g = Graph()
         self.assertEqual(g.node_count, 0)
@@ -38,7 +32,7 @@ class GraphTest(unittest.TestCase):
         g.add_edges("AB", "BC", "CD", "DA")
         self.assertEqual(
             set(g.edges),
-            {("A", "B"), ("B", "C"), ("C", "D"), ("D", "A")}
+            {frozenset(el) for el in (("A", "B"), ("B", "C"), ("C", "D"), ("D", "A"))}
         )
 
     def test_has_node(self):
@@ -58,15 +52,11 @@ class GraphTest(unittest.TestCase):
         g.add_edges("AB", "BC", "CA", "BA")
         self.assertEqual(
             set(g.edges),
-            {("A", "B"), ("B", "C"), ("B", "A"), ("C", "A")}
+            {frozenset(el) for el in (("A", "B"), ("B", "C"), ("B", "A"), ("C", "A"))}
         )
         self.assertEqual(
             set(g.incident_edges("A")),
-            {("A", "B")}
-        )
-        self.assertEqual(
-            set(g.incident_edges("A", outgoing=False)),
-            {("B", "A"), ("C", "A")}
+            {frozenset(("B", "A")), frozenset(("C", "A"))}
         )
 
     def test_adjacent_nodes(self):
@@ -79,7 +69,7 @@ class GraphTest(unittest.TestCase):
             {"A", "C"}
         )
         self.assertEqual(
-            set(g.adjacent_nodes("A", outgoing=False)),
+            set(g.adjacent_nodes("A")),
             {"B", "C"}
         )
         self.assertEqual(set(g.adjacent_nodes("D")), set())
@@ -103,7 +93,7 @@ class GraphTest(unittest.TestCase):
         g.add_nodes("A", "B", "C")
         self.assertEqual(set(g.edges), set())
         g.add_edge("A", "B")
-        self.assertEqual(set(g.edges), {("A", "B")})
+        self.assertEqual(set(g.edges), {frozenset(("A", "B"))})
     
     def test_add_edges(self):
         g = Graph()
@@ -111,7 +101,7 @@ class GraphTest(unittest.TestCase):
         self.assertEqual(g.edge_count, 0)
         g.add_edges("AB", "BC", "BA")
         self.assertEqual(
-            set(g.edges), {("A", "B"), ("B", "A"), ("B", "C")})
+            set(g.edges), {frozenset(el) for el in (("A", "B"), ("B", "A"), ("B", "C"))})
 
     def test_remove_node(self):
         g = Graph()
@@ -119,7 +109,7 @@ class GraphTest(unittest.TestCase):
         g.add_edges("AB", "BC", "CA")
         self.assertEqual(set(g.nodes), {"A", "B", "C"})
         self.assertEqual(
-            set(g.edges), {("A", "B"), ("B", "C"), ("C", "A")})
+            set(g.edges), {frozenset(el) for el in (("A", "B"), ("B", "C"), ("C", "A"))})
         g.remove_node("C")
         self.assertEqual(set(g.nodes), {"A", "B"})
-        self.assertEqual(set(g.edges), {("A", "B"),})
+        self.assertEqual(set(g.edges), {frozenset(("A", "B")),})

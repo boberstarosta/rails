@@ -1,56 +1,48 @@
 class Graph:
-    def __init__(self, directed=True):
-        self._outgoing = {}
-        self._incomming = {} if directed else self._outgoing
+    def __init__(self):
+        self._map = {}
 
     @property
-    def directed(self):
-        return not self._incomming is self._outgoing
-    
-    @property
     def node_count(self):
-        return len(self._outgoing)
+        return len(self._map)
 
     @property
     def nodes(self):
-        return self._outgoing.keys()
+        return self._map.keys()
     
     @property
     def edge_count(self):
-        total = sum(len(self._outgoing[n]) for n in self._outgoing)
-        return total if self.directed else total // 2
+        total = sum(len(self._map[n]) for n in self._map)
+        return total // 2
 
     @property
     def edges(self):
-        return (
-            (origin, destination)
-            for origin in self._outgoing
-            for destination in self._outgoing[origin]
-        )
+        return {
+            frozenset((origin, destination))
+            for origin in self._map
+            for destination in self._map[origin]
+        }
     
     def has_node(self, node):
-        return node in self._outgoing
+        return node in self._map
 
     def has_edge(self, origin, destination):
-        return origin in self._outgoing and destination in self._outgoing[origin]
+        return origin in self._map and destination in self._map[origin]
 
     def get_edge(self, origin, destination):
-        if origin not in self._outgoing:
+        if origin not in self._map:
             return None
-        return self._outgoing[origin].get(destination)
+        return self._map[origin].get(destination)
 
-    def incident_edges(self, node, outgoing=True):
-        adj = self._outgoing if outgoing else self._incomming
-        for other in adj[node]:
-            yield (node, other) if outgoing else (other, node)
+    def incident_edges(self, node):
+        for other in self._map[node]:
+            yield frozenset((node, other))
     
-    def adjacent_nodes(self, node, outgoing=True):
-        adj = self._outgoing if outgoing else self._incomming
-        return (other for other in adj[node])
+    def adjacent_nodes(self, node):
+        return (other for other in self._map[node])
 
     def add_node(self, node):
-        self._outgoing[node] = set()
-        self._incomming[node] = set()
+        self._map[node] = set()
         return node
 
     def add_nodes(self, *args):
@@ -63,8 +55,8 @@ class Graph:
             self.add_node(origin)
         if not self.has_node(destination):
             self.add_node(destination)
-        self._outgoing[origin].add(destination)
-        self._incomming[destination].add(origin)
+        self._map[origin].add(destination)
+        self._map[destination].add(origin)
         return (origin, destination)
 
     def add_edges(self, *args):
@@ -72,20 +64,17 @@ class Graph:
             self.add_edge(origin, destination)
 
     def remove_node(self, node):
-        del self._outgoing[node]
-        for secondary in self._outgoing.values():
+        del self._map[node]
+        for secondary in self._map.values():
             if node in secondary:
                 secondary.remove(node)
-        if self.directed:
-            del self._incomming[node]
 
     def remove_nodes(self, *args):
         for node in args:
             self.remove_node(node)
 
     def remove_edge(self, origin, destination):
-        self._outgoing[origin].remove(destination)
-        self._incomming[destination].remove(origin)
+        self._map[origin].remove(destination)
 
     def remove_edges(self, *args):
         for origin, destination in args:
