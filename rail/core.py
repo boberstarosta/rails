@@ -2,6 +2,7 @@ import pyglet
 from pyglet import gl
 from rail import config
 from rail.tracks import TrackManager
+from rail.renderer import Renderer
 
 
 class App:
@@ -13,6 +14,8 @@ class App:
         self.setup_opengl()
 
         self.tracks = TrackManager()
+        self.renderer = Renderer(self.tracks)
+
         self.tracks.add_track((300, 300), (600, 400))
 
     def setup_opengl(self):
@@ -24,3 +27,4 @@ class App:
 
     def on_draw(self):
         self.window.clear()
+        self.renderer.draw()
