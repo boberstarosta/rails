@@ -64,3 +64,8 @@ class TrackManager:
         self.on_cleared()
         for p1, p2 in data["tracks"]:
             self.add_track(p1, p2)
+
+    def print(self):
+        print("==== Tracks ====")
+        for n1, n2 in self.graph.edges:
+            print(n1, n2)

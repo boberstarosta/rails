@@ -26,6 +26,8 @@ class App:
                 self.tracks.save("track.json")
             elif symbol == pyglet.window.key.L:
                 self.tracks.load("track.json")
+            elif symbol == pyglet.window.key.P:
+                self.tracks.print()
 
     def on_update(self, dt):
         pass
