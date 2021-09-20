@@ -17,6 +17,7 @@ class Renderer:
         self._batch = pyglet.graphics.Batch()
         tracks.Node.on_create.append(self.on_track_node_created)
         track_manager.on_track_created.append(self.on_track_created)
+        track_manager.on_cleared.append(self.on_tracks_cleared)
         self._shapes = {}
     
     def on_track_node_created(self, node):
@@ -44,6 +45,11 @@ class Renderer:
             batch=self._batch,
             group=layers["track_segments"]
         )
+
+    def on_tracks_cleared(self):
+        for shape in self._shapes.values():
+            shape.delete()
+        self._shapes.clear()
 
     def draw(self):
         self._batch.draw()

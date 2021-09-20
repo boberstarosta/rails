@@ -1,6 +1,6 @@
 class Event(list):
-    def fire(self, sender, *args, **kwargs):
+    def fire(self, *args, **kwargs):
         for callback in self:
-            callback(sender, *args, **kwargs)
+            callback(*args, **kwargs)
     
     __call__ = fire
