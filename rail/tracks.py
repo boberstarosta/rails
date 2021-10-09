@@ -29,7 +29,7 @@ class Node:
     def position(self, value):
         if value != self._position:
             self._position = value
-            events.track_node_moved(self)
+            self.on_move(self)
 
 
 class TrackManager:
