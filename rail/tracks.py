@@ -25,6 +25,12 @@ class Node:
     def __repr__(self):
         return f"{self.__class__.__name__}({self.position})"
 
+    @position.setter
+    def position(self, value):
+        if value != self._position:
+            self._position = value
+            events.track_node_moved(self)
+
 
 class TrackManager:
     def __init__(self):
