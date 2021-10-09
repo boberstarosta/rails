@@ -39,15 +39,34 @@ class TrackManager:
         self.on_track_created(node1, node2)
         return node1, node2
 
+    def create_node(self, point):
+        node = Node(point)
+        self.graph.add_node(node)
+        return node
+
     def extend_node(self, node1, point):
         node2 = Node(point)
         self.graph.add_edge(node1, node2)
         self.on_track_created(node1, node2)
         return node2
 
+    def connect_nodes(self, node1, node2):
+        self.graph.add_edge(node1, node2)
+        self.on_track_created(node1, node2)
+        return node1, node2
+
+    def get_next_node(self, node_from, node_to):
+        for node in self.graph.adjacent_nodes(node_to):
+            if node is not node_from:
+                print(f"Next node: {node}")
+                return node
+
     def save(self, filename):
         data = {
-            "tracks": [(n1.position, n2.position) for (n1, n2) in self.graph.edges]
+            "tracks": {
+                "nodes": [(id(n), n.position) for n in self.graph.nodes],
+                "edges": [(id(n1), id(n2)) for (n1, n2) in self.graph.edges]
+            }
         }
         with open(filename, "w") as f:
             json.dump(data, f, indent=4)
@@ -62,10 +81,15 @@ class TrackManager:
             return
         self.graph = Graph()
         self.on_cleared()
-        for p1, p2 in data["tracks"]:
-            self.add_track(p1, p2)
+        nodes = {}
+        for n_id, n_pos in data["tracks"]["nodes"]:
+            nodes[n_id] = self.create_node(n_pos)
+        for n1_id, n2_id in data["tracks"]["edges"]:
+            self.connect_nodes(nodes[n1_id], nodes[n2_id])
 
     def print(self):
         print("==== Tracks ====")
+        print(f"Node count: {self.graph.node_count}")
+        print(f"Edge count: {self.graph.edge_count}")
         for n1, n2 in self.graph.edges:
             print(n1, n2)

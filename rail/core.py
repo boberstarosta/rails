@@ -2,6 +2,7 @@ import pyglet
 from pyglet import gl
 from rail import config
 from rail.tracks import TrackManager
+from rail.vehicles import VehicleManager
 from rail.renderer import Renderer
 
 
@@ -14,7 +15,8 @@ class App:
         self.setup_opengl()
 
         self.tracks = TrackManager()
-        self.renderer = Renderer(self.tracks)
+        self.vehicles = VehicleManager(self.tracks)
+        self.renderer = Renderer(self.tracks, self.vehicles)
 
     def setup_opengl(self):
         gl.glEnable(gl.GL_BLEND)
@@ -28,6 +30,16 @@ class App:
                 self.tracks.load("track.json")
             elif symbol == pyglet.window.key.P:
                 self.tracks.print()
+        elif symbol == pyglet.window.key.SPACE:
+            node1 = next(iter(self.tracks.graph._map))
+            node2 = next(iter(self.tracks.graph.adjacent_nodes(node1)))
+            vehicle = self.vehicles.create_vehicle(node1, node2, 5.0)
+        elif symbol == pyglet.window.key.LEFT:
+            for vehicle in self.vehicles.vehicles:
+                vehicle.move(-20)
+        elif symbol == pyglet.window.key.RIGHT:
+            for vehicle in self.vehicles.vehicles:
+                vehicle.move(20)
 
     def on_update(self, dt):
         pass
