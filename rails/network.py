@@ -1,6 +1,6 @@
-from typing import Dict, Iterable, Tuple, Union
-import settings
 import pyglet
+import settings
+from typing import Dict, Iterable, Tuple, Type, Union
 from rails.container import Container, Element
 from rails.graph import Graph
 from rails.vec import Vec
@@ -27,8 +27,9 @@ class Node(Element):
 
 
 class Network(pyglet.event.EventDispatcher):
-    MAX_NODE_CONNECTIONS = settings.MAX_TRACK_NODE_CONNECTIONS
-    MIN_EDGE_LENGTH = settings.MIN_TRACK_LENGTH
+    node_class: Union[None, Type[Node]] = Node
+    max_node_connections: Union[None, int] = None
+    min_edge_length: Union[None, float] = None
 
     def __init__(self) -> None:
         self.nodes = Container()
@@ -53,7 +54,7 @@ class Network(pyglet.event.EventDispatcher):
         return nearest
 
     def create_node(self, point: Vec) -> Node:
-        new_node = Node(point, container=self.nodes)
+        new_node = self.node_class(point, container=self.nodes)
         return self.add_node(new_node)
     
     def add_node(self, node: Node) -> Node:
@@ -68,14 +69,20 @@ class Network(pyglet.event.EventDispatcher):
 
         for node in (node for node in (source, target) if node in self.nodes):
             if node in self.nodes:
-                if len(self.graph.adjacent(node)) >= self.MAX_NODE_CONNECTIONS:
+                if (
+                    self.max_node_connections is not None and
+                    len(self.graph.adjacent(node)) >= self.max_node_connections
+                ):
                     return False
             else:
                 return False
 
         source_pos = source.position if source in self.nodes else Vec(source)
         target_pos = target.position if target in self.nodes else Vec(target)
-        if (target_pos - source_pos).length <= self.MIN_EDGE_LENGTH:
+        if (
+            self.min_edge_length is not None and
+            (target_pos - source_pos).length <= self.min_edge_length
+        ):
             return False
 
         return True

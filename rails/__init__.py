@@ -4,7 +4,7 @@ import settings
 from rails import graphics
 from rails import input
 from rails.builder import Builder
-from rails.network import Network
+from rails.tracks import TrackNetwork
 from rails.rollingstock import RollingStock
 
 
@@ -13,7 +13,7 @@ class App:
         self.window = pyglet.window.Window(
             width=settings.WINDOW_WIDTH, height=settings.WINDOW_HEIGHT)
 
-        self.network = Network()
+        self.network = TrackNetwork()
         self.rollingstock = RollingStock(self.network)
         self.builder = Builder(self.network)
 
