@@ -6,8 +6,8 @@ from rails.vec import Vec
 
 
 class TrackNode(Element):
-    def __init__(self, position, id=None):
-        super().__init__(id=id)
+    def __init__(self, position, id=None, container=None):
+        super().__init__(id=id, container=container)
         self._position = Vec(position)
 
     @property
@@ -20,6 +20,9 @@ class TrackNode(Element):
     @classmethod
     def deserialize(cls, data):
         return cls(data["position"], id=data["id"])
+
+    def __str__(self):
+        return f"TrackNode(position={self.position})"
 
 
 class Network:
@@ -44,6 +47,21 @@ class Network:
                 min_dist_sq = dist_sq
                 nearest = node
         return nearest
+
+    def can_extend_track(self, node, point):
+        print(node, point)
+        return (
+            len(self.tracks_graph.adjacent(node)) < settings.MAX_TRACK_NODE_CONNECTIONS and
+            (Vec(point) - node.position).length >= settings.MIN_TRACK_LENGTH
+        )
+    
+    def extend_track(self, node, point):
+        new_node = TrackNode(point, container=self.track_nodes)
+        self.track_nodes.add(new_node)
+        self.tracks_graph.add_edge(node, new_node)
+        graphics.track_renderer.add_node(new_node)
+        graphics.track_renderer.add_edge(node, new_node)
+        print(f"Extended track {node} - {new_node}")
 
     def clear(self):
         graphics.track_renderer.clear()

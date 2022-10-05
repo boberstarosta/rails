@@ -17,9 +17,12 @@ class App:
         self.rollingstock = RollingStock(self.network)
         self.builder = Builder(self.network)
 
+        self.window.register_event_type("on_load")
+
         self.window.push_handlers(self)
         self.window.push_handlers(input.state)
         self.window.push_handlers(self.builder)
+
         pyglet.clock.schedule_interval(self.on_tick, 1/settings.FRAMES_PER_SECOND)
 
     def save(self, filename):
@@ -29,13 +32,13 @@ class App:
         }
         with open(filename, "w") as f:
             json.dump(data, f, indent=4)
-        self.window.dispatch_event("on_load")
 
     def load(self, filename):
         with open(filename) as f:
             data = json.load(f)
         self.network.load(data["network"])
         self.rollingstock.load(data["trains"])
+        self.window.dispatch_event("on_load")
 
     def on_key_press(self, key, modifiers):
         if modifiers & pyglet.window.key.MOD_CTRL:
