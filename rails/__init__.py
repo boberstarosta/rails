@@ -18,8 +18,10 @@ class App:
         self.builder = Builder(self.network)
 
         self.track_renderer = graphics.TrackRenderer()
+        self.train_renderer = graphics.TrainRenderer()
 
         self.network.push_handlers(self.track_renderer)
+        self.rollingstock.push_handlers(self.train_renderer)
 
         self.window.push_handlers(self)
         self.window.push_handlers(input.state)

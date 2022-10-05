@@ -1,5 +1,6 @@
-from rails.container import Container, Element
+import pyglet
 from rails import graphics
+from rails.container import Container, Element
 
 
 class TrainCar(Element):
@@ -79,24 +80,28 @@ class TrainCar(Element):
         return cls(*nodes, data["place"], data["speed"], id=data["id"], inverted=data["inverted"])
 
 
-class RollingStock:
+class RollingStock(pyglet.event.EventDispatcher):
     def __init__(self, network):
         self.network = network
         self.cars = Container()
     
-    def add_car(self, node1, node2, param):
+    def create_car(self, node1, node2, param):
         new_car = TrainCar(node1, node2, param)
-        self.cars.add(new_car)
-        return new_car
+        return self.add_car(new_car)
+
+    def add_car(self, car):
+        self.cars.add(car)
+        self.dispatch_event("on_car_added", car)
+        return car
 
     def clear(self):
-        graphics.train_renderer.clear()
         self.cars = Container()
+        self.dispatch_event("on_cleared")
 
     def tick(self, dt):
         for car in self.cars.values():
             car.tick(dt, self.network)
-            graphics.train_renderer.update_car(car)
+            self.dispatch_event("on_car_updated", car)
 
     def serialize(self):
         cars = [car.serialize() for car in self.cars.values()]
@@ -106,5 +111,9 @@ class RollingStock:
         self.clear()
         for car_data in data["cars"]:
             car = TrainCar.deserialize(self.network, car_data)
-            self.cars.add(car)
-            graphics.train_renderer.add_car(car)
+            self.add_car(car)
+
+
+RollingStock.register_event_type("on_car_added")
+RollingStock.register_event_type("on_car_updated")
+RollingStock.register_event_type("on_cleared")

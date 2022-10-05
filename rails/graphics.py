@@ -5,15 +5,12 @@ import settings
 
 
 batch = pyglet.graphics.Batch()
-track_renderer = None
-train_renderer = None
 images = None
 
 
 _layer_iter = itertools.count()
 
 class GROUPS:
-
     EDGES = pyglet.graphics.OrderedGroup(next(_layer_iter))
     NODES = pyglet.graphics.OrderedGroup(next(_layer_iter))
     BUILDER_NEW_TRACK = pyglet.graphics.OrderedGroup(next(_layer_iter))
@@ -53,27 +50,27 @@ class TrainRenderer:
     def __init__(self):
         self.sprites = {}
 
-    def add_car(self, car):
+    def on_car_added(self, car):
         self.sprites[car] = pyglet.sprite.Sprite(
             images["arrow red.png"],
             batch=batch,
             group=GROUPS.TRAINS
         )
-        self.update_car(car)
+        self.on_car_updated(car)
 
-    def update_car(self, car):
+    def on_car_updated(self, car):
         self.sprites[car].update(
             *car.position,
             rotation = -car.rotation
         )
 
-    def clear(self):
+    def on_cleared(self):
         while self.sprites:
             self.sprites.popitem()[1].delete()
 
 
 def init():
-    global images, track_renderer, train_renderer
+    global images
 
     pyglet.resource.path = [settings.CONTENT_PATH]
     pyglet.resource.reindex()
@@ -85,7 +82,5 @@ def init():
     for image in images.values():
         image.anchor_x = image.width/2
         image.anchor_y = image.height/2
-
-    train_renderer = TrainRenderer()
 
     pyglet.gl.glClearColor(*settings.WINDOW_CLEAR_COLOR)
