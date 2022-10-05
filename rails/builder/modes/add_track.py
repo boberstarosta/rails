@@ -81,10 +81,10 @@ class AddTrackMode(BaseBuiilderMode):
             *self.new_target_sprite.position
         )
         self.new_track_sprite.visible = True
-        self.highlight_node(self.network.nearest_track_node(input.state.cursor, self.selected_node))
+        self.highlight_node(self.network.nearest_node(input.state.cursor, self.selected_node))
 
     def continue_building(self):
-        self.highlight_node(self.network.nearest_track_node(input.state.cursor, self.selected_node))
+        self.highlight_node(self.network.nearest_node(input.state.cursor, self.selected_node))
         if self.highlighted_node is None:
             self.new_target_sprite.position = input.state.cursor
         else:
@@ -95,40 +95,21 @@ class AddTrackMode(BaseBuiilderMode):
         )
 
     def finish_building(self):
-        source_node = None
-        target_node = None
-        if self.selected_node is not None and self.highlighted_node is None:
-            source_node = self.selected_node
-            extend_point = self.new_target_sprite.position
-        elif self.selected_node is None and self.highlight_node is not None:
-            source_node = self.highlighted_node
-            extend_point = self.new_source_sprite.position
-        elif self.selected_node is not None and self.highlighted_node is not None:
-            source_node = self.selected_node
-            target_node = self.highlighted_node
-        if source_node is not None:
-            if target_node is None:
-                if self.network.can_extend_track(source_node, extend_point):
-                    self.network.extend_track(source_node, extend_point)
-            else:
-                if self.network.can_connect_nodes(source_node, target_node):
-                    self.network.connect_nodes(source_node, target_node)
-        else:
-            if self.network.can_create_track(self.new_source_sprite.position, self.new_target_sprite.position):
-                self.network.create_track(self.new_source_sprite.position, self.new_target_sprite.position)
+        source = self.selected_node if self.selected_node is not None else self.new_source_sprite.position
+        target = self.highlighted_node if self.highlighted_node is not None else self.new_target_sprite.position
+        if self.network.can_create_edge(source, target):
+            self.network.create_edge(source, target)
 
         self.select_node(None)
-        self.new_source = None
-        self.new_target = None
         self.new_source_sprite.visible = False
         self.new_target_sprite.visible = False
         self.new_track_sprite.visible = False
 
     def on_load(self):
-        self.highlight_node(self.network.nearest_track_node(input.state.cursor))
+        self.highlight_node(self.network.nearest_node(input.state.cursor))
 
     def on_mouse_motion(self, x, y, dx,dy):
-        self.highlight_node(self.network.nearest_track_node(input.state.cursor))
+        self.highlight_node(self.network.nearest_node(input.state.cursor))
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == pyglet.window.mouse.LEFT:
@@ -137,7 +118,7 @@ class AddTrackMode(BaseBuiilderMode):
     def on_mouse_release(self, x, y, button, modifiers):
         if button == pyglet.window.mouse.LEFT:
             self.finish_building()
-            self.highlight_node(self.network.nearest_track_node(input.state.cursor))
+            self.highlight_node(self.network.nearest_node(input.state.cursor))
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         if buttons & pyglet.window.mouse.LEFT:

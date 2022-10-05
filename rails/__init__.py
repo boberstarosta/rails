@@ -17,7 +17,9 @@ class App:
         self.rollingstock = RollingStock(self.network)
         self.builder = Builder(self.network)
 
-        self.window.register_event_type("on_load")
+        self.track_renderer = graphics.TrackRenderer()
+
+        self.network.push_handlers(self.track_renderer)
 
         self.window.push_handlers(self)
         self.window.push_handlers(input.state)
@@ -38,7 +40,6 @@ class App:
             data = json.load(f)
         self.network.load(data["network"])
         self.rollingstock.load(data["trains"])
-        self.window.dispatch_event("on_load")
 
     def on_key_press(self, key, modifiers):
         if modifiers & pyglet.window.key.MOD_CTRL:

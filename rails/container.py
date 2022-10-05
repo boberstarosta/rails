@@ -27,6 +27,9 @@ class Container:
     def __getitem__(self, id: int) -> Element:
         return self._id_to_element_map[id]
     
+    def __contains__(self, element):
+        return element in self._element_to_id_map
+
     def next_id(self) -> int:
         self._next_id += 1
         return self._next_id + 1

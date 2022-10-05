@@ -46,7 +46,7 @@ class TrainCar(Element):
         length = (self.target_node.position - self.source_node.position).length
         self._place += self.speed*dt
         while self._place > length:
-            next_node = network.next_track_node(self.source_node, self.target_node)
+            next_node = network.next_node(self.source_node, self.target_node)
             if next_node is None:
                 self._place = length
                 self._speed = 0
@@ -55,7 +55,7 @@ class TrainCar(Element):
             self._place -= length
             length = (self.target_node.position - self.source_node.position).length
         while self._place < 0:
-            prev_node = network.next_track_node(self.target_node, self.source_node)
+            prev_node = network.next_node(self.target_node, self.source_node)
             if prev_node is None:
                 self._place = 0
                 self._speed = 0
@@ -75,7 +75,7 @@ class TrainCar(Element):
 
     @classmethod
     def deserialize(cls, network, data):
-        nodes = (network.track_nodes[node_id] for node_id in data["nodes"])
+        nodes = (network.nodes[node_id] for node_id in data["nodes"])
         return cls(*nodes, data["place"], data["speed"], id=data["id"], inverted=data["inverted"])
 
 

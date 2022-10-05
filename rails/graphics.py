@@ -27,7 +27,7 @@ class TrackRenderer:
     def __init__(self):
         self.sprites = {}
 
-    def add_node(self, node):
+    def on_node_added(self, node):
         self.sprites[node] = (pyglet.shapes.Circle(
             *node.position, settings.NODE_RADIUS, 20,
             color=settings.NODE_COLOR,
@@ -35,16 +35,16 @@ class TrackRenderer:
             group=GROUPS.NODES
         ))
 
-    def add_edge(self, n1, n2):
-        self.sprites[n1, n2] = (pyglet.shapes.Line(
-            *n1.position, *n2.position,
+    def on_edge_added(self, source, target):
+        self.sprites[source, target] = (pyglet.shapes.Line(
+            *source.position, *target.position,
             settings.EDGE_WIDTH,
             settings.EDGE_COLOR,
             batch=batch,
             group=GROUPS.EDGES
         ))
 
-    def clear(self):
+    def on_cleared(self):
         while self.sprites:
             self.sprites.popitem()[1].delete()
 
@@ -86,7 +86,6 @@ def init():
         image.anchor_x = image.width/2
         image.anchor_y = image.height/2
 
-    track_renderer = TrackRenderer()
     train_renderer = TrainRenderer()
 
     pyglet.gl.glClearColor(*settings.WINDOW_CLEAR_COLOR)

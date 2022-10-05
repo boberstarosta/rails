@@ -1,6 +1,7 @@
 from typing import Dict, Iterable, Tuple, Union
 import settings
 import pyglet
+from rails import graphics
 from rails.container import Container, Element
 from rails.graph import Graph
 from rails.vec import Vec
@@ -40,7 +41,7 @@ class Network(pyglet.event.EventDispatcher):
         except StopIteration:
             return None
 
-    def nearest_node(self, point: Vec, *exclude: Iterable[Node]) -> Union[Node, None]:
+    def nearest_node(self, point: Vec, *exclude: Iterable[Node]) -> Union(Node, None):
         point = Vec(point)
         search_radius_sq = settings.NODE_SEARCH_RADIUS**2
         nearest = None
@@ -54,27 +55,18 @@ class Network(pyglet.event.EventDispatcher):
 
     def create_node(self, point: Vec) -> Node:
         new_node = Node(point, container=self.nodes)
-        return self.add_node(new_node)
+        self.graph.add_node(new_node)
+        self.dispatch_event("on_node_created", new_node)
+        return new_node
     
-    def add_node(self, node: Node) -> Node:
-        self.nodes.add(node)
-        self.graph.add_node(node)
-        self.dispatch_event("on_node_added", node)
-        return node
-
     def can_create_edge(self, source: Union[Vec, Node], target: Union[Vec, Node]) -> bool:
-        if source is target:
-            return False
-
         for node in (node for node in (source, target) if node in self.nodes):
             if node in self.nodes:
                 if len(self.graph.adjacent(node)) >= self.MAX_NODE_CONNECTIONS:
                     return False
-            else:
-                return False
 
-        source_pos = source.position if source in self.nodes else Vec(source)
-        target_pos = target.position if target in self.nodes else Vec(target)
+        source_pos = source.position if source in self.nodes else source
+        target_pos = target.position if target in self.nodes else target
         if (target_pos - source_pos).length <= self.MIN_EDGE_LENGTH:
             return False
 
@@ -84,10 +76,11 @@ class Network(pyglet.event.EventDispatcher):
         source_node = source if source in self.nodes else self.create_node(source)
         target_node = target if target in self.nodes else self.create_node(target)
         self.graph.add_edge(source_node, target_node)
-        self.dispatch_event("on_edge_added", source_node, target_node)
+        self.dispatch_event("on_edge_created", source_node, target_node)
         return (source_node, target_node)
 
     def clear(self) -> None:
+        graphics.track_renderer.clear()
         self.nodes = Container()
         self.graph = Graph(directed=False, loops_allowed=False)
         self.dispatch_event("on_cleared")
@@ -106,14 +99,20 @@ class Network(pyglet.event.EventDispatcher):
 
         for node_data in data["nodes"]:
             node = Node.deserialize(node_data)
-            self.add_node(node)
+            self.nodes.add(node)
+            self.graph.add_node(node)
+            graphics.track_renderer.add_node(node)
 
-        for source_id, target_id in data["edges"]:
-            source_node = self.nodes[source_id]
-            target_node = self.nodes[target_id]
-            self.create_edge(source_node, target_node)
+        for node1_id, node2_id in data["edges"]:
+            node1 = self.nodes[node1_id]
+            node2 = self.nodes[node2_id]
+            self.graph.add_edge(node1, node2)
+            graphics.track_renderer.add_edge(node1, node2)
+        
+        self.dispatch_event("on_loaded")
 
 
-Network.register_event_type("on_node_added")
-Network.register_event_type("on_edge_added")
+Network.register_event_type("on_node_created")
+Network.register_event_type("on_edge_created")
 Network.register_event_type("on_cleared")
+Network.register_event_type("on_loaded")
