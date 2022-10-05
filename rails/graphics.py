@@ -16,6 +16,8 @@ class GROUPS:
 
     EDGES = pyglet.graphics.OrderedGroup(next(_layer_iter))
     NODES = pyglet.graphics.OrderedGroup(next(_layer_iter))
+    BUILDER_NEW_TRACK = pyglet.graphics.OrderedGroup(next(_layer_iter))
+    BUILDER_NEW_NODE = pyglet.graphics.OrderedGroup(next(_layer_iter))
     BUILDER_SELECT = pyglet.graphics.OrderedGroup(next(_layer_iter))
     BUILDER_HIGHLIGHT = pyglet.graphics.OrderedGroup(next(_layer_iter))
     TRAINS = pyglet.graphics.OrderedGroup(next(_layer_iter))

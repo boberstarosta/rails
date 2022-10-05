@@ -33,14 +33,14 @@ class Network:
         except StopIteration:
             return None
 
-    def nearest_track_node(self, point):
+    def nearest_track_node(self, point, *exclude):
         point = Vec(point)
         search_radius_sq = settings.NODE_SEARCH_RADIUS**2
         nearest = None
         min_dist_sq = float("inf")
         for node in self.track_nodes.values():
             dist_sq = (node.position - point).length_sq
-            if dist_sq < search_radius_sq and dist_sq < min_dist_sq:
+            if dist_sq < search_radius_sq and dist_sq < min_dist_sq and node not in exclude:
                 min_dist_sq = dist_sq
                 nearest = node
         return nearest
