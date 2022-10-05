@@ -38,6 +38,9 @@ class Container:
         if element.id < self._next_id:
             raise KeyError(f"New element's id cannot be less than {self._next_id}")
 
+        if element.id in self._id_to_element_map and element is not self[element.id]:
+            raise ValueError(f"An element with id={element.id} exists and is not {element}")
+
         self._id_to_element_map[element.id] = element
         self._element_to_id_map[element] = element.id
         if self._next_id <= element.id:

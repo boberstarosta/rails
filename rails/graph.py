@@ -46,3 +46,7 @@ class Graph:
             self.add_node(end)
         self._outgoing[start][end] = weight
         self._incomming[end][start] = weight
+
+    def remove_node(self, node):
+        del self._incomming[node]
+        del self._outgoing[node]
