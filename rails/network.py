@@ -48,8 +48,19 @@ class Network:
                 nearest = node
         return nearest
 
+    def can_create_track(self, source, target):
+        return (Vec(source) - Vec(target)).length >= settings.MIN_TRACK_LENGTH
+    
+    def create_track(self, source, target):
+        source_node = TrackNode(source, container=self.track_nodes)
+        target_node = TrackNode(target, container=self.track_nodes)
+        self.track_nodes.extend(source_node, target_node)
+        self.tracks_graph.add_edge(source_node, target_node)
+        graphics.track_renderer.add_node(source_node)
+        graphics.track_renderer.add_node(target_node)
+        graphics.track_renderer.add_edge(source_node, target_node)
+
     def can_extend_track(self, node, point):
-        print(node, point)
         return (
             len(self.tracks_graph.adjacent(node)) < settings.MAX_TRACK_NODE_CONNECTIONS and
             (Vec(point) - node.position).length >= settings.MIN_TRACK_LENGTH
@@ -61,7 +72,18 @@ class Network:
         self.tracks_graph.add_edge(node, new_node)
         graphics.track_renderer.add_node(new_node)
         graphics.track_renderer.add_edge(node, new_node)
-        print(f"Extended track {node} - {new_node}")
+
+    def can_connect_nodes(self, source, target):
+        return (
+            source is not target and
+            len(self.tracks_graph.adjacent(source)) < settings.MAX_TRACK_NODE_CONNECTIONS and
+            len(self.tracks_graph.adjacent(target)) < settings.MAX_TRACK_NODE_CONNECTIONS and
+            (target.position - source.position).length >= settings.MIN_TRACK_LENGTH
+        )
+
+    def connect_nodes(self, source, target):
+        self.tracks_graph.add_edge(source, target)
+        graphics.track_renderer.add_edge(source, target)
 
     def clear(self):
         graphics.track_renderer.clear()

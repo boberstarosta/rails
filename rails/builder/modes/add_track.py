@@ -96,14 +96,26 @@ class AddTrackMode(BaseBuiilderMode):
 
     def finish_building(self):
         source_node = None
+        target_node = None
         if self.selected_node is not None and self.highlighted_node is None:
             source_node = self.selected_node
             extend_point = self.new_target_sprite.position
         elif self.selected_node is None and self.highlight_node is not None:
             source_node = self.highlighted_node
             extend_point = self.new_source_sprite.position
-        if source_node is not None and self.network.can_extend_track(source_node, extend_point):
-            self.network.extend_track(source_node, extend_point)
+        elif self.selected_node is not None and self.highlighted_node is not None:
+            source_node = self.selected_node
+            target_node = self.highlighted_node
+        if source_node is not None:
+            if target_node is None:
+                if self.network.can_extend_track(source_node, extend_point):
+                    self.network.extend_track(source_node, extend_point)
+            else:
+                if self.network.can_connect_nodes(source_node, target_node):
+                    self.network.connect_nodes(source_node, target_node)
+        else:
+            if self.network.can_create_track(self.new_source_sprite.position, self.new_target_sprite.position):
+                self.network.create_track(self.new_source_sprite.position, self.new_target_sprite.position)
 
         self.select_node(None)
         self.new_source = None

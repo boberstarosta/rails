@@ -41,6 +41,11 @@ class Container:
             self._next_id = element.id + 1
         return self._next_id
 
+    def extend(self, *elements: Iterable[Element]) -> int:
+        for element in elements:
+            self.add(element)
+        return self._next_id
+
     def remove(self, id: Optional[int] = None, element: Optional[Element] = None) -> None:
         if id is None:
             id = element.id
