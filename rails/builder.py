@@ -16,6 +16,10 @@ class Builder(pyglet.event.EventDispatcher):
         self.active_point = None
         self.selected_point = None
 
+        self.source_node = None
+        self.target_node = None
+        self.plan_points = []
+
     def highlight_nearest_node(self):
         self.highlighted_node = self.network.nearest_node(input.state.cursor)
         point = None if self.highlighted_node is None else self.highlighted_node.position
@@ -40,11 +44,43 @@ class Builder(pyglet.event.EventDispatcher):
 
     def start_building(self):
         self.is_building = True
+        if self.selected_node:
+            self.source_node = self.selected_node
+            self.plan_points.append(self.source_node.position)
+        else:
+            self.plan_points.append(self.selected_point)
+        self.plan_points.append(input.state.cursor)
 
     def continue_building(self):
-        print("continue building")
+        self.target_node = self.highlighted_node
+        if self.target_node is self.source_node:
+            self.target_node = None
+        if self.target_node is None:
+            self.plan_points[-1] = input.state.cursor
+        else:
+            self.plan_points[-1] = self.target_node.position
+        self.dispatch_event("on_plan_changed", self.plan_points)
 
     def finish_building(self):
+        self.target_node = self.selected_node
+        if self.source_node is None:
+            start = 0
+        else:
+            start = 1
+            self.network.create_edge(self.source_node, self.plan_points[start])
+        if self.target_node is None:
+            stop = len(self.plan_points)
+        else:
+            stop = -1
+            self.network.create_edge(self.plan_points[stop-1], self.target_node)
+
+        for source, target in zip(self.plan_points[start:stop-1], self.plan_points[start+1:stop]):
+            self.network.create_edge(source, target)
+
+        self.source_node = None
+        self.target_node = None
+        self.plan_points.clear()
+        self.dispatch_event("on_plan_changed", self.plan_points)
         self.is_building = False
 
     def on_mouse_motion(self, x, y, dx, dy):
@@ -73,3 +109,4 @@ class Builder(pyglet.event.EventDispatcher):
 
 Builder.register_event_type("on_point_highlighted")
 Builder.register_event_type("on_point_selected")
+Builder.register_event_type("on_plan_changed")
