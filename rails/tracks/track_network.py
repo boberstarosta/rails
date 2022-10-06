@@ -27,9 +27,7 @@ class TrackNode(Element):
 
 
 class TrackNetwork(pyglet.event.EventDispatcher):
-    node_class: Union[None, Type[TrackNode]] = TrackNode
-    max_node_connections: Union[None, int] = None
-    min_edge_length: Union[None, float] = None
+    node_class: Type[TrackNode] = TrackNode
 
     def __init__(self) -> None:
         self.nodes = Container()
@@ -67,30 +65,6 @@ class TrackNetwork(pyglet.event.EventDispatcher):
         self.graph.remove_node(node)
         self.nodes.remove(element=node)
         self.dispatch_event("on_node_removed", node)
-
-    def can_create_edge(self, source: Union[Vec, TrackNode], target: Union[Vec, TrackNode]) -> bool:
-        if source is target:
-            return False
-
-        for node in (node for node in (source, target) if node in self.nodes):
-            if node in self.nodes:
-                if (
-                    self.max_node_connections is not None and
-                    len(self.graph.adjacent(node)) >= self.max_node_connections
-                ):
-                    return False
-            else:
-                return False
-
-        source_pos = source.position if source in self.nodes else Vec(source)
-        target_pos = target.position if target in self.nodes else Vec(target)
-        if (
-            self.min_edge_length is not None and
-            (target_pos - source_pos).length <= self.min_edge_length
-        ):
-            return False
-
-        return True
 
     def create_edge(self, source: Union[Vec, TrackNode], target: Union[Vec, TrackNode]) -> Tuple[TrackNode, TrackNode]:
         source_node = source if source in self.nodes else self.create_node(source)
