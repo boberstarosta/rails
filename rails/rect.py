@@ -20,6 +20,10 @@ class Rect(collections.namedtuple("Rect", ("left", "bottom", "width", "height"))
         return Vec(self.top, self.right)
 
     @property
+    def center(self):
+        return Vec(self.left + self.width/2, self.bottom + self.height/2)
+
+    @property
     def size(self):
         return Vec(self.width, self.height)
 
