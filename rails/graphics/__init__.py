@@ -22,6 +22,10 @@ class groups:
 
     TRAINS = pyglet.graphics.OrderedGroup(next(_layer_iter))
 
+    GUI_BACKGROUND = pyglet.graphics.OrderedGroup(next(_layer_iter))
+    GUI_WIDGET_BACKGROUND = pyglet.graphics.OrderedGroup(next(_layer_iter))
+    GUI_WIDGET_FOREGROUND = pyglet.graphics.OrderedGroup(next(_layer_iter))
+
 
 def init():
     global images
