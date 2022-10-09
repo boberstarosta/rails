@@ -1,3 +1,4 @@
+import logging
 import pyglet
 import settings
 from rails import input
@@ -23,33 +24,37 @@ class Builder(pyglet.event.EventDispatcher):
     def highlight_nearest_node(self):
         self.highlighted_node = self.network.nearest_node(input.state.cursor)
         point = None if self.highlighted_node is None else self.highlighted_node.position
+        logging.debug(f"highlight_nearest_node node={self.highlighted_node} point={point}")
         self.dispatch_event("on_point_highlighted", point)
 
     def select_active_node_or_point(self):
         if self.highlighted_node is self.active_node:
             self.selected_node = self.active_node
         self.active_node = None
-        if (self.active_point is not None and
-            (self.active_point - input.state.cursor).length <= settings.NODE_SEARCH_RADIUS
-        ):
+        if self.active_point is not None:
             self.selected_point = self.active_point
         self.active_point = None
         point = self.selected_point if self.selected_node is None else self.selected_node.position
+        logging.debug(f"select_active "
+            f"selected_node={self.selected_node} selected_point={self.selected_point} "
+            f"active_node={self.active_node} active_point={self.active_point}")
         self.dispatch_event("on_point_selected", point)
 
     def clear_selection(self):
         self.selected_node = None
         self.selected_point = None
+        logging.debug(f"clear_selection {self.selected_node} {self.selected_point}")
         self.dispatch_event("on_point_selected", None)
 
     def start_building(self):
         self.is_building = True
-        if self.selected_node:
+        if self.selected_node is not None:
             self.source_node = self.selected_node
             self.plan_points.append(self.source_node.position)
         else:
             self.plan_points.append(self.selected_point)
         self.plan_points.append(input.state.cursor)
+        logging.info(f"start_building {self.source_node} {self.target_node} {self.plan_points}")
 
     def continue_building(self):
         self.target_node = self.highlighted_node
@@ -96,6 +101,8 @@ class Builder(pyglet.event.EventDispatcher):
             self.active_node = self.highlighted_node
             if self.active_node is None:
                 self.active_point = input.state.cursor
+            else:
+                self.active_point = None
     
     def on_mouse_release(self, x, y, button, modifiers):
         if button == pyglet.window.mouse.LEFT:

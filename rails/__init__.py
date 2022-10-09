@@ -2,9 +2,10 @@ import json
 import pyglet
 import settings
 from rails import graphics
-from rails.graphics import renderers
 from rails import input
+from rails import gui
 from rails.builder import Builder
+from rails.graphics import renderers
 from rails.tracks import TrackNetwork
 from rails.rollingstock import RollingStock
 
@@ -22,11 +23,14 @@ class App:
         self.train_renderer = renderers.TrainRenderer()
         self.builder_renderer = renderers.BuilderRenderer()
 
+        gui.gui = gui.Gui(self.window)
+
         self.network.push_handlers(self.track_renderer)
         self.rollingstock.push_handlers(self.train_renderer)
         self.builder.push_handlers(self.builder_renderer)
 
         self.window.push_handlers(self)
+        self.window.push_handlers(gui.gui)
         self.window.push_handlers(input.state)
         self.window.push_handlers(self.builder)
 
