@@ -3,10 +3,8 @@ import pyglet
 import settings
 from rails import graphics
 from rails import input
-from rails import gui
 from rails.builder import Builder
-from rails.graphics import renderers
-from rails.tracks import TrackNetwork
+from rails.track_manager import TrackManager
 from rails.rollingstock import RollingStock
 
 
@@ -15,22 +13,11 @@ class App:
         self.window = pyglet.window.Window(
             width=settings.WINDOW_WIDTH, height=settings.WINDOW_HEIGHT)
 
-        self.network = TrackNetwork()
-        self.rollingstock = RollingStock(self.network)
-        self.builder = Builder(self.network)
-
-        self.track_renderer = renderers.TrackRenderer()
-        self.train_renderer = renderers.TrainRenderer()
-        self.builder_renderer = renderers.BuilderRenderer()
-
-        gui.gui = gui.Gui(self.window)
-
-        self.network.push_handlers(self.track_renderer)
-        self.rollingstock.push_handlers(self.train_renderer)
-        self.builder.push_handlers(self.builder_renderer)
+        self.track_manager = TrackManager()
+        self.rollingstock = RollingStock(self.track_manager)
+        self.builder = Builder(self.track_manager)
 
         self.window.push_handlers(self)
-        self.window.push_handlers(gui.gui)
         self.window.push_handlers(input.state)
         self.window.push_handlers(self.builder)
 
@@ -38,7 +25,7 @@ class App:
 
     def save(self, filename):
         data = {
-            "network": self.network.serialize(),
+            "network": self.track_manager.serialize(),
             "trains": self.rollingstock.serialize()
         }
         with open(filename, "w") as f:
@@ -47,7 +34,7 @@ class App:
     def load(self, filename):
         with open(filename) as f:
             data = json.load(f)
-        self.network.load(data["network"])
+        self.track_manager.load(data["network"])
         self.rollingstock.load(data["trains"])
 
     def on_key_press(self, key, modifiers):
