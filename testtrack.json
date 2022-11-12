@@ -135,14 +135,12 @@
     "trains": {
         "cars": [
             {
-                "id": 0,
-                "nodes": [
-                    1,
-                    0
-                ],
-                "place": 165.3798930003941,
-                "speed": 50.0,
-                "inverted": false
+                "location": {
+                    "source": 0,
+                    "target": 1,
+                    "place": 20.0
+                },
+                "speed": 50.0
             }
         ]
     }
